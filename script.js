@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const servicePropertyContainer = document.getElementById("service-property-container");
     const serviceOption = document.getElementById("service-option");
     const serviceProperty = document.getElementById("service-property");
+    const serviceDelivery = document.getElementById("service-delivery");
     const serviceError = document.getElementById("service-quantity-error");
     const serviceResult = document.getElementById("service-result");
     const validQuantity = /^[1-9][0-9]*$/;
@@ -69,7 +70,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const count = Number(input);
 
         serviceOptionContainer.hidden = selectedType !== "print";
-        servicePropertyContainer.hidden = selectedType !== "delivery";
+        servicePropertyContainer.hidden = !serviceDelivery.checked;
+        if (!serviceDelivery.checked) {
+            serviceProperty.checked = false;
+        }
         serviceError.hidden = true;
         serviceQuantity.removeAttribute("aria-invalid");
 
@@ -81,13 +85,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        let total;
-        if (selectedType === "basic") {
-            total = 500 * count;
-        } else if (selectedType === "print") {
-            total = printPrices[serviceOption.value] * count;
-        } else {
-            total = 300 * count + (serviceProperty.checked ? 200 : 0);
+        let total = (selectedType === "basic" ? 500 : printPrices[serviceOption.value]) * count;
+        if (serviceDelivery.checked) {
+            total += 300 * count + (serviceProperty.checked ? 200 : 0);
         }
 
         if (!Number.isSafeInteger(total)) {
